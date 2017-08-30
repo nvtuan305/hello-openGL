@@ -16,13 +16,13 @@ public class Triangle {
 
     static final int COORDS_PER_VERTEX = 3;
 
-    static float triangleCoords[] = {
+    float triangleCoords[] = {
             0.0f, 0.5f, 0.0f, // top
             -0.5f, -0.3f, 0.0f, // bottom left
             0.5f, -0.3f, 0.0f // bottom right
     };
 
-    float color[] = {1.0f, 0.0f, 0.0f, 1.0f};
+    float color[] = {1.0f, 1.0f, 1.0f, 1.0f};
 
     private final String vertexShaderCode =
             "attribute vec4 vPosition;"
@@ -37,9 +37,19 @@ public class Triangle {
             + " gl_FragColor = vColor;"
             + "}";
 
-    private final int mProgram;
+    private int mProgram;
+
+    public Triangle(float[] triangleCoords, float[] color) {
+        this.triangleCoords = triangleCoords;
+        this.color = color;
+        init();
+    }
 
     public Triangle() {
+        init();
+    }
+
+    private void init() {
         // Build vertex buffer
         ByteBuffer bb = ByteBuffer.allocateDirect(triangleCoords.length * 4);
         // Use the device hardware's native byte order

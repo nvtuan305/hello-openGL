@@ -3,8 +3,7 @@ package com.blueeagle.helloopengl;
 import android.content.Context;
 import android.opengl.GLSurfaceView;
 import android.util.AttributeSet;
-
-import javax.microedition.khronos.opengles.GL10;
+import android.util.Log;
 
 /*
  * Created by tuan.nv on 8/28/2017.
@@ -13,6 +12,7 @@ import javax.microedition.khronos.opengles.GL10;
 public class MyGLSurfaceView extends GLSurfaceView {
 
     private MyGLRenderer mRenderer;
+    private static final String TAG = "MyGLSurfaceView";
 
     public MyGLSurfaceView(Context context) {
         super(context);
@@ -26,7 +26,13 @@ public class MyGLSurfaceView extends GLSurfaceView {
 
     private void init() {
         // Create a OpenGL 2.0 context
-        setEGLContextClientVersion(2);
+        if (GLHelper.isSupportOpenGLVersion(getContext(), 0x20000)) {
+            Log.d(TAG, "The device is supported OpenGL v2.0");
+            setEGLContextClientVersion(2);
+        } else {
+            Log.d(TAG, "The device is supported OpenGL v1.0");
+            setEGLContextClientVersion(1);
+        }
 
         // Set the renderer for MyGLSurfaceView
         mRenderer = new MyGLRenderer();

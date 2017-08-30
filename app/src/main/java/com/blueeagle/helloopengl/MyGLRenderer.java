@@ -4,7 +4,6 @@ package com.blueeagle.helloopengl;
  * Created by tuan.nv on 8/28/2017.
  */
 
-import android.graphics.Bitmap;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 
@@ -25,6 +24,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
     public void onDrawFrame(GL10 gl10) {
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
         mTriangle.draw();
+        //Log.d("RENDERER", "OnDrawFrame...");
     }
 
     @Override

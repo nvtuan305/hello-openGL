@@ -22,7 +22,7 @@ public class Triangle {
             0.5f, -0.3f, 0.0f // bottom right
     };
 
-    float color[] = {1.0f, 1.0f, 1.0f, 1.0f};
+    float color[] = {1.0f, 0.0f, 0.0f, 1.0f};
 
     private final String vertexShaderCode =
             "attribute vec4 vPosition;"
@@ -85,6 +85,8 @@ public class Triangle {
         GLES20.glVertexAttribPointer(mPositionHandle, COORDS_PER_VERTEX,
                 GLES20.GL_FLOAT, false,
                 vertexStride, vertexBuffer);
+
+
 
         // Get handle to fragment shader's vColor member
         mColorHandle = GLES20.glGetUniformLocation(mProgram, "vColor");

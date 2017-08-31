@@ -1,10 +1,13 @@
-package com.blueeagle.helloopengl;
+package com.blueeagle.helloopengl.models;
 
 /*
  * Created by tuan.nv on 8/28/2017.
  */
 
 import android.opengl.GLES20;
+
+import com.blueeagle.helloopengl.utils.ProgramHelper;
+import com.blueeagle.helloopengl.utils.ShaderHelper;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -26,16 +29,16 @@ public class Triangle {
 
     private final String vertexShaderCode =
             "attribute vec4 vPosition;"
-            + "void main() {"
-            + " gl_Position = vPosition;"
-            + "}";
+                    + "void main() {"
+                    + " gl_Position = vPosition;"
+                    + "}";
 
     private final String fragmentShaderCode =
             "precision mediump float;"
-            + "uniform vec4 vColor;"
-            + "void main() {"
-            + " gl_FragColor = vColor;"
-            + "}";
+                    + "uniform vec4 vColor;"
+                    + "void main() {"
+                    + " gl_FragColor = vColor;"
+                    + "}";
 
     private int mProgram;
 
@@ -63,16 +66,9 @@ public class Triangle {
         // -------------------------
         // Compiling OpenGL shader and linking programs is expensive in term of CPU cycles
         // and processing time ====> AVOID DOING THIS MORE THAN ONCE
-        int vertexShader = MyGLRenderer.loadShader(GLES20.GL_VERTEX_SHADER, vertexShaderCode);
-        int fragmentShader = MyGLRenderer.loadShader(GLES20.GL_FRAGMENT_SHADER, fragmentShaderCode);
-
-        mProgram = GLES20.glCreateProgram();
-        // Add vertex shader to program
-        GLES20.glAttachShader(mProgram, vertexShader);
-        // Add fragment shader to program
-        GLES20.glAttachShader(mProgram, fragmentShader);
-        // Create OpenGL ES program executables
-        GLES20.glLinkProgram(mProgram);
+        int vertexShader = ShaderHelper.loadShader(GLES20.GL_VERTEX_SHADER, vertexShaderCode);
+        int fragmentShader = ShaderHelper.loadShader(GLES20.GL_FRAGMENT_SHADER, fragmentShaderCode);
+        mProgram = ProgramHelper.createAndLinkProgram(vertexShader, fragmentShader);
     }
 
     private int mPositionHandle;
@@ -95,7 +91,6 @@ public class Triangle {
         GLES20.glVertexAttribPointer(mPositionHandle, COORDS_PER_VERTEX,
                 GLES20.GL_FLOAT, false,
                 vertexStride, vertexBuffer);
-
 
 
         // Get handle to fragment shader's vColor member

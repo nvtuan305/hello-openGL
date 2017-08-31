@@ -1,4 +1,4 @@
-package com.blueeagle.helloopengl;
+package com.blueeagle.helloopengl.models;
 
 /*
  * Created by tuan.nv on 8/30/2017.
@@ -6,7 +6,12 @@ package com.blueeagle.helloopengl;
 
 import android.content.Context;
 import android.opengl.GLES20;
-import android.util.Log;
+
+import com.blueeagle.helloopengl.R;
+import com.blueeagle.helloopengl.utils.ProgramHelper;
+import com.blueeagle.helloopengl.utils.RawResourceReader;
+import com.blueeagle.helloopengl.utils.ShaderHelper;
+import com.blueeagle.helloopengl.utils.TextureHelper;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -28,49 +33,16 @@ public class Rectangle {
             0.0f, -1.0f, 1.0f, 0.95f, 0.83f, 0.01f, 1.0f,
             0.0f, 0.0f, 1.0f, 0.95f, 0.83f, 0.01f, 1.0f
     };
-
     short[] drawOrder = {0, 1, 2, 0, 2, 3};
-
-    static final String mVertexShaderCode =
-            // A constant representing the combined model/view/projection matrix
-            "uniform mat4 u_MVPMatrix;" +
-                    // Per-vertex position information
-                    "attribute vec4 a_Position;" +
-                    // Per-vertex color information
-                    "attribute vec4 a_Color;" +
-                    // Out-value color which will be passed into fragment shader
-                    "varying vec4 v_Color;" +
-                    "void main() {" +
-                    // The color will be interpolated across the triangle.
-                    "    v_Color = a_Color;" +
-                    // gl_Position is a special variable used to store the final position.
-                    // Multiply the vertex by the matrix to get the final point in
-                    // normalized screen coordinates.
-                    "    gl_Position = a_Position;" +
-                    "}";
-
-    static final String mFragmentShaderCode =
-            // Set the default precision to medium. We don't need as high of a\n
-            // precision in the fragment shader
-            "precision mediump float;" +
-                    // This is the color from the vertex shader interpolated across the
-                    // triangle per fragment
-                    "varying vec4 v_Color;" +
-                    "void main() {" +
-                    // Pass the color directly through the pipeline.
-                    "    gl_FragColor = v_Color;" +
-                    "}";
-
+    private String mVertexShaderCode = "";
+    private String mFragmentShaderCode = "";
     static final String TAG = "MMRectangle";
-
     private int mMvpMatrixHandle;
     private int mPositionHandle;
     private int mColorHandle;
     private int mTexSampler2DHandle;
     private int mTextureCoordinateHandle;
     private int mTextureDataHandle;
-
-    private float[] mMVPMatrix = new float[16];
     private final int mStrideBytes = 7 * BYTE_PER_FLOAT;
     private final int mPositionOffset = 0;
     private final int mPositionDataSize = 3;
@@ -78,16 +50,17 @@ public class Rectangle {
     private final int mColorDataSize = 4;
     private final int mTextureCoordinateDataSize = 2;
 
-    public Rectangle() {
+    public Rectangle(Context context) {
+        loadShaderCode(context);
         init(mVertexShaderCode, mFragmentShaderCode);
     }
 
     public Rectangle(Context context, int textureId) {
         float[] textureCoordinateData = {
-                0.0f, 1.0f,
                 0.0f, 0.0f,
-                1.0f, 0.0f,
-                1.0f, 1.0f
+                0.0f, 1.0f,
+                1.0f, 1.0f,
+                1.0f, 0.0f
         };
 
         mTexCoordsBuffer = ByteBuffer.allocateDirect(textureCoordinateData.length * BYTE_PER_FLOAT)
@@ -95,16 +68,9 @@ public class Rectangle {
                 .asFloatBuffer();
         mTexCoordsBuffer.put(textureCoordinateData).position(0);
 
-        String vertexShaderCode = RawResourceReader.readTextFromRawFileResource(context,
-                R.raw.rect_vertex_shader_code);
-        String fragmentShaderCode = RawResourceReader.readTextFromRawFileResource(context,
-                R.raw.rect_fragment_shader_code);
-
-        Log.d(TAG, vertexShaderCode);
-        Log.d(TAG, fragmentShaderCode);
-
-        // Init
-        init(vertexShaderCode, fragmentShaderCode);
+        // Load shader code
+        loadShaderCode(context);
+        init(mVertexShaderCode, mFragmentShaderCode);
 
         // Load texture
         mTextureDataHandle = TextureHelper.loadTexture(context, textureId);
@@ -125,34 +91,20 @@ public class Rectangle {
         mDrawListBuffer.put(drawOrder).position(0);
 
         // Load shader
-        int vertexShader = MyGLRenderer.loadShader(GLES20.GL_VERTEX_SHADER, vertexShaderCode);
-        int fragShader = MyGLRenderer.loadShader(GLES20.GL_FRAGMENT_SHADER, fragmentShaderCode);
-
-        if (vertexShader == 0) {
-            Log.e(TAG, "Fail to load vertex shader.");
-        }
-
-        if (fragShader == 0) {
-            Log.e(TAG, "Fail to load fragment shader.");
-        }
-
-        if (vertexShader == 0 || fragShader == 0) return;
+        int vertexShader = ShaderHelper.loadShader(GLES20.GL_VERTEX_SHADER, vertexShaderCode);
+        int fragShader = ShaderHelper.loadShader(GLES20.GL_FRAGMENT_SHADER, fragmentShaderCode);
 
         // Link shader to a program
-        mProgram = GLES20.glCreateProgram();
-        GLES20.glAttachShader(mProgram, vertexShader);
-        GLES20.glAttachShader(mProgram, fragShader);
-        GLES20.glLinkProgram(mProgram);
-
-        int[] linkStatus = new int[1];
-        GLES20.glGetProgramiv(mProgram, GLES20.GL_LINK_STATUS, linkStatus, 0);
-        if (linkStatus[0] == 0) {
-            Log.e(TAG, "Error linking program: " + GLES20.glGetProgramInfoLog(mProgram));
-            GLES20.glDeleteProgram(mProgram);
-        }
+        mProgram = ProgramHelper.createAndLinkProgram(vertexShader, fragShader);
     }
 
-    //public void draw(float[] mViewMatrix, float[] mModelMatrix, float[] mProjectionMatrix) {
+    private void loadShaderCode(Context context) {
+        mVertexShaderCode = RawResourceReader.readTextFromRawFileResource(context,
+                R.raw.rect_vertex_shader_code);
+        mFragmentShaderCode = RawResourceReader.readTextFromRawFileResource(context,
+                R.raw.rect_fragment_shader_code);
+    }
+
     public void draw() {
         passDataToOpenGL();
 
@@ -166,7 +118,6 @@ public class Rectangle {
     private void passDataToOpenGL() {
         GLES20.glUseProgram(mProgram);
 
-        mMvpMatrixHandle = GLES20.glGetAttribLocation(mProgram, "u_MVPMatrix");
         mPositionHandle = GLES20.glGetAttribLocation(mProgram, "a_Position");
         mColorHandle = GLES20.glGetAttribLocation(mProgram, "a_Color");
 
@@ -183,9 +134,10 @@ public class Rectangle {
                 false, mStrideBytes, mVertexBuffer);
     }
 
-    public void drawWithTexture() {
+    public void drawWithTexture(float[] mvpMatrix) {
         passDataToOpenGL();
 
+        mMvpMatrixHandle = GLES20.glGetUniformLocation(mProgram, "u_MVPMatrix");
         mTexSampler2DHandle = GLES20.glGetUniformLocation(mProgram, "u_Texture");
         mTextureCoordinateHandle = GLES20.glGetAttribLocation(mProgram, "a_TexCoordinate");
 
@@ -204,6 +156,9 @@ public class Rectangle {
         GLES20.glEnableVertexAttribArray(mTextureCoordinateHandle);
         GLES20.glVertexAttribPointer(mTextureCoordinateHandle, mTextureCoordinateDataSize,
                 GLES20.GL_FLOAT, false, 0, mTexCoordsBuffer);
+
+        // Pass projection an view matrix
+        GLES20.glUniformMatrix4fv(mMvpMatrixHandle, 1, false, mvpMatrix, 0);
 
         GLES20.glDrawElements(GLES20.GL_TRIANGLES, drawOrder.length,
                 GLES20.GL_UNSIGNED_SHORT, mDrawListBuffer);

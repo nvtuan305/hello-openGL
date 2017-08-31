@@ -1,4 +1,4 @@
-package com.blueeagle.helloopengl;
+package com.blueeagle.helloopengl.gl;
 
 /*
  * Created by tuan.nv on 8/28/2017.

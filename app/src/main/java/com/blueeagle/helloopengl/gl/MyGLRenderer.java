@@ -1,4 +1,4 @@
-package com.blueeagle.helloopengl;
+package com.blueeagle.helloopengl.gl;
 
 /*
  * Created by tuan.nv on 8/28/2017.
@@ -7,7 +7,12 @@ package com.blueeagle.helloopengl;
 import android.content.Context;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
+import android.opengl.Matrix;
 import android.util.Log;
+
+import com.blueeagle.helloopengl.R;
+import com.blueeagle.helloopengl.models.Rectangle;
+import com.blueeagle.helloopengl.models.Triangle;
 
 import java.lang.ref.WeakReference;
 
@@ -71,12 +76,17 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
     @Override
     public void onDrawFrame(GL10 gl10) {
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
-        mTriangle.draw();
-        mTriangle1.draw();
+        //mTriangle.draw();
+        //mTriangle1.draw();
+
+        // Set the camera position (View Matrix)
+        Matrix.setLookAtM(mViewMatrix, 0, 0, 0, -3, 0f, 0f, 0f, 0f, 1.0f, 0.0f);
+        // Calculate the projection and view transformation
+        Matrix.multiplyMM(mMVPMatrix, 0, mProjectionMatrix, 0, mViewMatrix, 0);
 
         if (mRectangle != null) {
             Log.d(TAG, "Drawing a rectangle...");
-            mRectangle.drawWithTexture();
+            mRectangle.drawWithTexture(mMVPMatrix);
         }
     }
 
@@ -84,28 +94,9 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
     public void onSurfaceChanged(GL10 gl10, int width, int height) {
         // Set the OpenGL to the same size as the surface
         GLES20.glViewport(0, 0, width, height);
-    }
 
-    public static int loadShader(int type, String shaderCode) throws RuntimeException {
-        // create a vertex shader type (GLES20.GL_VERTEX_SHADER)
-        // or a fragment shader type (GLES20.GL_FRAGMENT_SHADER)
-        int shaderHandle = GLES20.glCreateShader(type);
-
-        // Add the source code to the shader and compile it
-        GLES20.glShaderSource(shaderHandle, shaderCode);
-        GLES20.glCompileShader(shaderHandle);
-        checkCompileShaderError(shaderHandle);
-        return shaderHandle;
-    }
-
-    private static void checkCompileShaderError(int shaderHandle) {
-        final int[] compileStatus = new int[1];
-        GLES20.glGetShaderiv(shaderHandle, GLES20.GL_COMPILE_STATUS, compileStatus, 0);
-
-        if (compileStatus[0] == 0) {
-            GLES20.glDeleteShader(shaderHandle);
-            shaderHandle = 0;
-            throw new RuntimeException("Error compiling shader: " + GLES20.glGetShaderInfoLog(shaderHandle));
-        }
+        // Calculate the projection matrix
+        float ratio = (float) width / height;
+        Matrix.frustumM(mProjectionMatrix, 0, -ratio, ratio, -1, 1, 3, 7);
     }
 }

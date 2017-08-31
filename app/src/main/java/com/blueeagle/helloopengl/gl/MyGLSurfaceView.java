@@ -1,4 +1,4 @@
-package com.blueeagle.helloopengl;
+package com.blueeagle.helloopengl.gl;
 
 import android.content.Context;
 import android.opengl.GLSurfaceView;

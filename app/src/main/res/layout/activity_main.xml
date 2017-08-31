@@ -4,9 +4,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.blueeagle.helloopengl.MainActivity">
+    tools:context="com.blueeagle.helloopengl.views.MainActivity">
 
-    <com.blueeagle.helloopengl.MyGLSurfaceView
+    <com.blueeagle.helloopengl.gl.MyGLSurfaceView
         android:id="@+id/gl_surface"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

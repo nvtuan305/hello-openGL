@@ -1,7 +1,10 @@
-package com.blueeagle.helloopengl;
+package com.blueeagle.helloopengl.views;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+
+import com.blueeagle.helloopengl.R;
+import com.blueeagle.helloopengl.gl.MyGLSurfaceView;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;

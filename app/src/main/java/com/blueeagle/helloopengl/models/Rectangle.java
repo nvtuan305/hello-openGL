@@ -28,10 +28,10 @@ public class Rectangle {
 
     float[] rectVerticesData = {
             // (X, Y, Z) - Position  (R, G, B, A)
-            -1.0f, 0.0f, 1.0f, 0.95f, 0.83f, 0.01f, 1.0f,
-            -1.0f, -1.0f, 1.0f, 0.95f, 0.83f, 0.01f, 1.0f,
-            0.0f, -1.0f, 1.0f, 0.95f, 0.83f, 0.01f, 1.0f,
-            0.0f, 0.0f, 1.0f, 0.95f, 0.83f, 0.01f, 1.0f
+            -1.0f, 1.0f, 0.0f, 0.95f, 0.83f, 0.01f, 1.0f,
+            -1.0f, -1.0f, 0.0f, 0.95f, 0.83f, 0.01f, 1.0f,
+            1.0f, -1.0f, 0.0f, 0.95f, 0.83f, 0.01f, 1.0f,
+            1.0f, 1.0f, 0.0f, 0.95f, 0.83f, 0.01f, 1.0f
     };
     short[] drawOrder = {0, 1, 2, 0, 2, 3};
     private String mVertexShaderCode = "";
@@ -57,10 +57,10 @@ public class Rectangle {
 
     public Rectangle(Context context, int textureId) {
         float[] textureCoordinateData = {
-                0.0f, 0.0f,
-                0.0f, 1.0f,
-                1.0f, 1.0f,
-                1.0f, 0.0f
+                0.1f, 0f,
+                0.1f, 1f,
+                0.9f, 1f,
+                0.9f, 0f
         };
 
         mTexCoordsBuffer = ByteBuffer.allocateDirect(textureCoordinateData.length * BYTE_PER_FLOAT)

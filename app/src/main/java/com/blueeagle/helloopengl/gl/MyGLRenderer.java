@@ -80,7 +80,14 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         //mTriangle1.draw();
 
         // Set the camera position (View Matrix)
-        Matrix.setLookAtM(mViewMatrix, 0, 0, 0, -3, 0f, 0f, 0f, 0f, 1.0f, 0.0f);
+        // (eyeX, eyeY, eyeZ): The position of camera
+        // (centerX, centerY, centerZ): The position to be centered of the visible view
+        // (upX, upY, upZ): Z axis
+        Matrix.setLookAtM(mViewMatrix, 0,
+                0f, 0f, 3f,
+                0f, 0f, 0f,
+                0f, 1.0f, 0.0f);
+
         // Calculate the projection and view transformation
         Matrix.multiplyMM(mMVPMatrix, 0, mProjectionMatrix, 0, mViewMatrix, 0);
 
@@ -97,6 +104,12 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
 
         // Calculate the projection matrix
         float ratio = (float) width / height;
-        Matrix.frustumM(mProjectionMatrix, 0, -ratio, ratio, -1, 1, 3, 7);
+        // Keep the height, scale the width: -1 => -ratio, 1 => ratio
+        Matrix.frustumM(mProjectionMatrix, 0,
+                -ratio, ratio, -1f, 1f,
+                // Camera <--> Near = 2 => Near(0, 0, 3)
+                // Camera <--> Far = 7 => Far(0, 0, -2)
+                // The view will be clamped between near and far
+                2f, 5.0f);
     }
 }

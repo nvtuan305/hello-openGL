@@ -11,6 +11,7 @@ import android.opengl.Matrix;
 import android.util.Log;
 
 import com.blueeagle.helloopengl.R;
+import com.blueeagle.helloopengl.models.MagicRectangle;
 import com.blueeagle.helloopengl.models.Rectangle;
 import com.blueeagle.helloopengl.models.Triangle;
 
@@ -23,6 +24,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
 
     private Triangle mTriangle, mTriangle1;
     private Rectangle mRectangle;
+    private MagicRectangle mMagicRectangle;
     private final String TAG = "MyGLRenderer";
 
     /**
@@ -70,6 +72,23 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         Context context = contextWeakReference.get();
         if (context != null) {
             mRectangle = new Rectangle(context, R.drawable.texture_basic_1);
+
+            float[] rectVerticesData = {
+                    -1.0f, 1.0f, 0.0f,
+                    -1.0f, -1.0f, 0.0f,
+                    1.0f, -1.0f, 0.0f,
+                    1.0f, 1.0f, 0.0f
+            };
+
+            float[] textureCoordinateData = {
+                    0f, 0f,
+                    0f, 1f,
+                    1f, 1f,
+                    1f, 0f
+            };
+
+            mMagicRectangle = new MagicRectangle(context, R.drawable.texture_logo_gianty,
+                    rectVerticesData, textureCoordinateData);
         }
     }
 
@@ -91,9 +110,14 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         // Calculate the projection and view transformation
         Matrix.multiplyMM(mMVPMatrix, 0, mProjectionMatrix, 0, mViewMatrix, 0);
 
-        if (mRectangle != null) {
+        /*if (mRectangle != null) {
             Log.d(TAG, "Drawing a rectangle...");
             mRectangle.drawWithTexture(mMVPMatrix);
+        }*/
+
+        if (mMagicRectangle != null) {
+            Log.d(TAG, "Drawing a magic rectangle...");
+            mMagicRectangle.draw(mMVPMatrix);
         }
     }
 

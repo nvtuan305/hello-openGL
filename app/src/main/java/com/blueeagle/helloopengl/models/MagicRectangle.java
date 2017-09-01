@@ -93,6 +93,28 @@ public class MagicRectangle {
         mTextureDataHandle = TextureHelper.loadTexture(context, textureId);
     }
 
+    public void setVerticesAndTexCoords(float[] rectVerticesData, float[] textureCoordinateData) {
+        this.mVerticesData = rectVerticesData;
+        this.mTexCoordsData = textureCoordinateData;
+
+        // Build vertex buffer
+        mVertexBuffer.clear();
+        mVertexBuffer = null;
+        mVertexBuffer = ByteBuffer.allocateDirect(mVerticesData.length * BYTE_PER_FLOAT)
+                .order(ByteOrder.nativeOrder())
+                .asFloatBuffer();
+        mVertexBuffer.put(mVerticesData)
+                .position(0);
+
+        // Build texture buffer
+        mTexCoordsBuffer.clear();
+        mTexCoordsBuffer = null;
+        mTexCoordsBuffer = ByteBuffer.allocateDirect(mTexCoordsData.length * BYTE_PER_FLOAT)
+                .order(ByteOrder.nativeOrder())
+                .asFloatBuffer();
+        mTexCoordsBuffer.put(mTexCoordsData).position(0);
+    }
+
     private String getVertexShaderCode(Context context) {
         return RawResourceReader.readTextFromRawFileResource(context,
                 R.raw.rect_vertex_shader_code);
@@ -126,7 +148,7 @@ public class MagicRectangle {
     private void passDataToOpenGL(float[] mvpMatrix) {
         // Pass in the position information
         mPositionHandle = GLES20.glGetAttribLocation(mProgram, "a_Position");
-        mVertexBuffer.position(mPositionOffset);
+        mVertexBuffer.position(0);
         GLES20.glEnableVertexAttribArray(mPositionHandle);
         GLES20.glVertexAttribPointer(mPositionHandle, mPositionDataSize, GLES20.GL_FLOAT,
                 false, mStrideBytes, mVertexBuffer);

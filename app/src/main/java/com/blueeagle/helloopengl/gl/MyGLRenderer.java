@@ -60,6 +60,11 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
     @Override
     public void onSurfaceCreated(GL10 gl10, EGLConfig eglConfig) {
         GLES20.glClearColor(0.43f, 0.27f, 1.0f, 1.0f);
+
+        // Enable blend transparent color
+        GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
+        GLES20.glEnable(GLES20.GL_BLEND);
+
         mTriangle = new Triangle();
 
         mTriangle1 = new Triangle(
@@ -107,13 +112,13 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
                 0f, 0f, 0f,
                 0f, 1.0f, 0.0f);
 
-        // Calculate the projection and view transformation
-        Matrix.multiplyMM(mMVPMatrix, 0, mProjectionMatrix, 0, mViewMatrix, 0);
+        Matrix.setIdentityM(mModelMatrix, 0);
+        Matrix.rotateM(mModelMatrix, 0, 90.0f, 0.0f, 0.0f, 1.0f);
+        Matrix.multiplyMM(mMVPMatrix, 0, mViewMatrix, 0, mModelMatrix, 0);
 
-        /*if (mRectangle != null) {
-            Log.d(TAG, "Drawing a rectangle...");
-            mRectangle.drawWithTexture(mMVPMatrix);
-        }*/
+        // Calculate the projection and view transformation
+        // projection * view * model
+        Matrix.multiplyMM(mMVPMatrix, 0, mProjectionMatrix, 0, mMVPMatrix, 0);
 
         if (mMagicRectangle != null) {
             Log.d(TAG, "Drawing a magic rectangle...");

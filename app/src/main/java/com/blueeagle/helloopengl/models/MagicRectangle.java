@@ -149,7 +149,7 @@ public class MagicRectangle {
         GLES20.glVertexAttribPointer(mTextureCoordinateHandle, mTextureCoordinateDataSize,
                 GLES20.GL_FLOAT, false, 0, mTexCoordsBuffer);
 
-        // Pass projection an view matrix
+        // Pass in MVP matrix
         mMvpMatrixHandle = GLES20.glGetUniformLocation(mProgram, "u_MVPMatrix");
         GLES20.glUniformMatrix4fv(mMvpMatrixHandle, 1, false, mvpMatrix, 0);
     }

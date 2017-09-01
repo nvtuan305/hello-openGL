@@ -127,7 +127,7 @@ public class Rectangle {
         GLES20.glVertexAttribPointer(mPositionHandle, mPositionDataSize, GLES20.GL_FLOAT,
                 false, mStrideBytes, mVertexBuffer);
 
-        // Pass in the color information
+        // Pass in the mDefaultColor information
         mVertexBuffer.position(mColorOffset);
         GLES20.glEnableVertexAttribArray(mColorHandle);
         GLES20.glVertexAttribPointer(mColorHandle, mColorDataSize, GLES20.GL_FLOAT,

@@ -3,6 +3,8 @@
 
 #include <GLES2/gl2.h>
 #include <EGL/egl.h>
+#include "glm/detail/type_mat.hpp"
+#include "glm/detail/type_mat4x4.hpp"
 
 class BasicModel {
 
@@ -13,6 +15,10 @@ protected:
     GLuint mVB;
     GLint mPositionHandle;
     GLint mMvpMatrixHandle;
+    glm::mat4 mModelMatrix;
+    glm::mat4 mViewMatrix;
+    glm::mat4 mProjectionMatrix;
+    glm::mat4 mMvpMatrix;
 
 public:
     BasicModel() {

@@ -45,4 +45,8 @@ public class MyGLSurfaceView extends GLSurfaceView {
     public void setModelToDraw(int modelType) {
         mRenderer.setModelToDraw(modelType);
     }
+
+    public void setUseJniFunc(boolean isUseJni) {
+        mRenderer.setIsUseJNI(isUseJni);
+    }
 }

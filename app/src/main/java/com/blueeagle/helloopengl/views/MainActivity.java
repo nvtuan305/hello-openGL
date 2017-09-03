@@ -2,6 +2,7 @@ package com.blueeagle.helloopengl.views;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.widget.CheckBox;
 import android.widget.ImageView;
 
 import com.blueeagle.helloopengl.R;
@@ -21,6 +22,9 @@ public class MainActivity extends AppCompatActivity {
 
     @BindView(R.id.image_next)
     ImageView mImageNext;
+
+    @BindView(R.id.check_box_jni_java)
+    CheckBox mCbUseJni;
 
     private int mCurrentCount = 0;
     private final int MODEL_COUNT = 3;
@@ -60,6 +64,12 @@ public class MainActivity extends AppCompatActivity {
         }
 
         mGLSurfaceView.setModelToDraw(mCurrentCount % MODEL_COUNT);
+    }
+
+    @OnClick(R.id.check_box_jni_java)
+    public void changeDrawMode() {
+        boolean isUseJni = mCbUseJni.isChecked();
+        mGLSurfaceView.setUseJniFunc(isUseJni);
     }
 
     @Override

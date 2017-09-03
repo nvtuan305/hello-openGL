@@ -24,7 +24,6 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
 
     private Triangle mSimpleTriangle, mTriangleWithTex;
     private MagicRectangle mMagicRectangle;
-    private final String TAG = "MyGLRenderer";
 
     private float[] mProjectionMatrix = new float[16];
     private float[] mModelMatrix = new float[16];
@@ -32,6 +31,8 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
     private float[] mMVPMatrix = new float[16];
     private float[] mTransOpt = new float[3];
 
+    private boolean mIsUseJNI;
+    private boolean mIsInitWithJNI = false;
     private int mCurrentModel = 0;
     private float mAngleToRotate = 0f;
     private final int SIMPLE_TRIANGLE = 0;
@@ -39,13 +40,14 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
     private final int RECTANGLE_WITH_TEXTURE = 2;
 
     private WeakReference<Context> contextWeakReference;
+    private final String TAG = "MyGLRenderer";
 
     public MyGLRenderer(Context context) {
         contextWeakReference = new WeakReference<>(context);
     }
 
     /**
-     * Set model type to draw
+     * Set triangle type to draw
      *
      * @param mCurrentModel value in {0, 1, 2}
      */
@@ -53,16 +55,70 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         this.mCurrentModel = mCurrentModel;
     }
 
+    public void setIsUseJNI(boolean isUseJNI) {
+        /*// Use JNI
+        if (!mIsUseJNI && isUseJNI) {
+            jniOnSurfaceCreated();
+        }
+
+        // Use java
+        if (mIsUseJNI && !isUseJNI) {
+            mSimpleTriangle = null;
+            mTriangleWithTex = null;
+            mMagicRectangle = null;
+            mCurrentModel = 0;
+            initSurfaceInJava();
+        }*/
+
+        this.mIsUseJNI = isUseJNI;
+    }
+
     @Override
     public void onSurfaceCreated(GL10 gl10, EGLConfig eglConfig) {
+        jniOnSurfaceCreated();
+        /*if (mIsUseJNI) {
+            jniOnSurfaceCreated();
+            return;
+        }
+
+        initSurfaceInJava();*/
+    }
+
+    @Override
+    public void onSurfaceChanged(GL10 gl10, int width, int height) {
+        jniOnSurfaceChanged(width, height);
+        /*if (mIsUseJNI) {
+            jniOnSurfaceChanged(width, height);
+            return;
+        }
+
+        doSurfaceChangedInJava(width, height);*/
+    }
+
+    @Override
+    public void onDrawFrame(GL10 gl10) {
+        jniDrawFrame();
+        /*if (mIsUseJNI) {
+            jniDrawFrame();
+            return;
+        }
+
+        drawFrameInJava();*/
+    }
+
+    /*
+     * -----------------------------------------------------------
+     * Drawing function in Java
+     * -----------------------------------------------------------
+     */
+    private void initSurfaceInJava() {
         // Enable blend transparent color
         GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
         GLES20.glEnable(GLES20.GL_BLEND);
 
-        //mRectangle = new Rectangle();
         Context context = contextWeakReference.get();
         if (context != null) {
-            // Init a simple triangle model
+            // Init a simple triangle triangle
             float[] tCoords = new float[]{
                     0.0f, 0.5f, 0.0f,
                     -0.5f, -0.5f, 0.0f,
@@ -102,8 +158,22 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
                 0f, 1.0f, 0.0f);
     }
 
-    @Override
-    public void onDrawFrame(GL10 gl10) {
+    private void doSurfaceChangedInJava(int width, int height) {
+        // Set the OpenGL to the same size as the surface
+        GLES20.glViewport(0, 0, width, height);
+
+        // Calculate the projection matrix
+        float ratio = (float) width / height;
+        // Keep the height, scale the width: -1 => -ratio, 1 => ratio
+        Matrix.frustumM(mProjectionMatrix, 0,
+                -ratio, ratio, -1f, 1f,
+                // Camera <--> Near = 2 => Near(0, 0, 3)
+                // Camera <--> Far = 7 => Far(0, 0, -2)
+                // The view will be clamped between near and far
+                2f, 5.0f);
+    }
+
+    private void drawFrameInJava() {
         if (mCurrentModel == RECTANGLE_WITH_TEXTURE)
             GLES20.glClearColor(1f, 1f, 1.0f, 1.0f);
         else GLES20.glClearColor(0.43f, 0.27f, 1.0f, 1.0f);
@@ -218,23 +288,22 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         Matrix.translateM(mModelMatrix, 0, mTransOpt[0], mTransOpt[1], mTransOpt[2]);
         Matrix.rotateM(mModelMatrix, 0, mAngleToRotate, 0.0f, 0.0f, 1.0f);
         Matrix.multiplyMM(mMVPMatrix, 0, mViewMatrix, 0, mModelMatrix, 0);
-        // Calculate the projection and view transformation: projection * view * model
+        // Calculate the projection and view transformation: projection * view * triangle
         Matrix.multiplyMM(mMVPMatrix, 0, mProjectionMatrix, 0, mMVPMatrix, 0);
     }
 
-    @Override
-    public void onSurfaceChanged(GL10 gl10, int width, int height) {
-        // Set the OpenGL to the same size as the surface
-        GLES20.glViewport(0, 0, width, height);
-
-        // Calculate the projection matrix
-        float ratio = (float) width / height;
-        // Keep the height, scale the width: -1 => -ratio, 1 => ratio
-        Matrix.frustumM(mProjectionMatrix, 0,
-                -ratio, ratio, -1f, 1f,
-                // Camera <--> Near = 2 => Near(0, 0, 3)
-                // Camera <--> Far = 7 => Far(0, 0, -2)
-                // The view will be clamped between near and far
-                2f, 5.0f);
+    /*
+     * -----------------------------------------------------------
+     * Drawing function in JNI
+     * -----------------------------------------------------------
+     */
+    static {
+        System.loadLibrary("GLES2NativeLib");
     }
+
+    private native void jniOnSurfaceCreated();
+
+    private native void jniOnSurfaceChanged(int width, int height);
+
+    private native void jniDrawFrame();
 }

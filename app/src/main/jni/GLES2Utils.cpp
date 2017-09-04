@@ -69,6 +69,37 @@ GLuint loadTexture() {
     return 0;
 }
 
+/**
+ * Load a solid texture
+ *
+ * @param rgba the solid color with RGBA type, value of R-G-B-A in [0-255]
+ * @return handle to texture
+ */
+GLuint loadTextureColor(GLubyte rgba[]) {
+    GLuint textureHandle[1];
+    glGenTextures(1, &textureHandle[0]);
+    checkGlError("glGenTextures - Gen solid color texture");
+
+    if (textureHandle[0] != 0) {
+        glBindTexture(GL_TEXTURE_2D, textureHandle[0]);
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, rgba);
+        checkGlError("glTexImage2D - Gen solid color texture");
+    }
+
+    if (textureHandle[0] == 0) {
+        LOGE("Load solid color texture error");
+    }
+
+    return textureHandle[0];
+}
+
 GLuint createProgram(const char *vertexShaderCode, const char *fragShaderCode) {
     GLuint vtxShaderHandle = loadShader(GL_VERTEX_SHADER, vertexShaderCode);
     GLuint fragShaderHandle = loadShader(GL_FRAGMENT_SHADER, fragShaderCode);

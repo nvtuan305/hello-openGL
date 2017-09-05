@@ -11,17 +11,19 @@
         android:id="@+id/gl_surface"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/check_box_jni_java" />
+        android:layout_above="@+id/text_mode" />
 
-    <CheckBox
-        android:id="@+id/check_box_jni_java"
+    <TextView
+        android:id="@+id/text_mode"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_above="@+id/layout_bottom"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="16dp"
-        android:paddingLeft="8dp"
-        android:text="Use JNI to draw" />
+        android:background="@drawable/bg_round"
+        android:gravity="center"
+        android:text="Using C++ Library to draw :]]"
+        android:textColor="@android:color/white" />
 
     <LinearLayout
         android:id="@+id/layout_bottom"

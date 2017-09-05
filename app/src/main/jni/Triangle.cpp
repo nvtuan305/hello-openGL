@@ -108,12 +108,6 @@ void Triangle::resize(int width, int height) {
 }
 
 void Triangle::draw() {
-    /*if (!glIsProgram(mProgram)) {
-        LOGE("Program has error");
-        glDeleteProgram(mProgram);
-        init();
-    }*/
-
     glUseProgram(mProgram);
     checkGlError("glUseProgram");
 
@@ -132,19 +126,13 @@ void Triangle::draw() {
     // Pass texture data
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, mTexDataHandle);
-    glUniform1f(mTexSampler2DHandle, 0);
+    glUniform1i(mTexSampler2DHandle, 0);
+    checkGlError("glUniform1i - pass texture data");
 
     // Pass MVP matrix data
     calculateMvpMatrix(0.0f, glm::vec3(0.0f, 0.0f, 0.0f));
     glUniformMatrix4fv(mMvpMatrixHandle, 1, GL_FALSE, glm::value_ptr(mMvpMatrix));
-    /*for (int i = 0; i < 4; ++i) {
-        LOGD("%f %f %f %f\n", mMvpMatrix[i][0], mMvpMatrix[i][1], mMvpMatrix[i][2],
-             mMvpMatrix[i][3]);
-    }*/
     checkGlError("glUniformMatrix4fv - pass MVP matrix data");
-
-    /*glUniform4fv(mColorHandle, 1, mColorData);
-    checkGlError("glUniform4fv");*/
 
     glDrawArrays(GL_TRIANGLES, 0, 3);
 

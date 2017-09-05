@@ -2,8 +2,9 @@
 #include <android/log.h>
 #include <stdlib.h>
 #include "GLES2Utils.h"
+#include "stb/stb_image.h"
 
-#define LOG_TAG "GLES2JNI"
+#define LOG_TAG "GLES2Utils"
 #define LOGE(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
 #define LOGD(...) __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, __VA_ARGS__)
 
@@ -65,9 +66,7 @@ GLuint loadShader(GLenum shaderType, const char *src) {
     return shaderHandle;
 }
 
-GLuint loadTexture() {
-    return 0;
-}
+
 
 /**
  * Load a solid texture

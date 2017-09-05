@@ -1,27 +1,10 @@
 #include <android/log.h>
 #include "GLES2Utils.h"
+#include "BaseModel.h"
 
 #define LOG_TAG "TRIANGLE_CPP"
 #define LOGE(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
 #define LOGD(...) __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, __VA_ARGS__)
-
-const char mVertexShaderCode[] =
-        "attribute vec4 a_Position;"
-                "uniform mat4 u_MVPMatrix;"
-                "attribute vec2 a_TexCoords;"
-                "varying vec2 v_TexCoords;"
-                "void main() {"
-                "    v_TexCoords = a_TexCoords;"
-                "    gl_Position = u_MVPMatrix * a_Position;"
-                "}";
-
-const char mFragShaderCode[] =
-        "precision mediump float;"
-                "varying vec2 v_TexCoords;"
-                "uniform sampler2D u_Texture;"
-                "void main() {"
-                "    gl_FragColor = texture2D(u_Texture, v_TexCoords);"
-                "}";
 
 class Triangle : public BasicModel {
 
@@ -30,11 +13,11 @@ public:
 
     ~Triangle();
 
-    virtual void init();
+    virtual void init() override;
 
     void resize(int width, int height) override;
 
-    virtual void draw();
+    virtual void draw() override;
 };
 
 BasicModel *createTriangle() {
@@ -43,7 +26,7 @@ BasicModel *createTriangle() {
     return model;
 }
 
-Triangle::Triangle() {
+Triangle::Triangle() : BasicModel() {
     mVertexData = new GLfloat[9]{
             0.0f, 0.5f, 0.0f,
             -0.5f, -0.3f, 0.0f,
@@ -54,12 +37,9 @@ Triangle::Triangle() {
             0.0f, 1.0f,
             1.0f, 1.0f
     };
-    mProgram = 0;
-    mPositionHandle = 0;
-    mMvpMatrixHandle = 0;
-    mTexDataHandle = 0;
-    mTexCoordsHandle = 0;
-    mTexSampler2DHandle = 0;
+    mVertexDataSize = 9;
+    mTexCoordsDataSize = 6;
+    LOGD("%d %d %d", mPositionHandle, mTexDataHandle, mProgram);
 }
 
 Triangle::~Triangle() {
@@ -67,27 +47,8 @@ Triangle::~Triangle() {
 }
 
 void Triangle::init() {
-    // Create program only one time
-    if (mProgram == 0) {
-        mProgram = createProgram(mVertexShaderCode, mFragShaderCode);
-        if (mProgram == 0) return;
-    }
-
-    mPositionHandle = glGetAttribLocation(mProgram, "a_Position");
-    mTexCoordsHandle = glGetAttribLocation(mProgram, "a_TexCoords");
-    mMvpMatrixHandle = glGetUniformLocation(mProgram, "u_MVPMatrix");
-    mTexSampler2DHandle = glGetUniformLocation(mProgram, "u_Texture");
-
-    // Bind vertices data, texture coordinates data
-    glGenBuffers(VB_COUNT, mVB);
-    glBindBuffer(GL_ARRAY_BUFFER, mVB[VB_POSITION]);
-    glBufferData(GL_ARRAY_BUFFER, 9 * sizeof(GLfloat), mVertexData, GL_STATIC_DRAW);
-    checkGlError("glBufferData - vertex data");
-
-    glBindBuffer(GL_ARRAY_BUFFER, mVB[VB_TEX_COORDS]);
-    glBufferData(GL_ARRAY_BUFFER, 6 * sizeof(GLfloat), mTexCoords, GL_STATIC_DRAW);
-    checkGlError("glBufferData - texture coordinates data");
-
+    // Create program, get handle to GLSL variables
+    BasicModel::init();
     mViewMatrix = glm::lookAt(
             glm::vec3(0, 0, 3.0f),
             glm::vec3(0, 0, 0),

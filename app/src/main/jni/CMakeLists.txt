@@ -4,7 +4,8 @@ cmake_minimum_required(VERSION 3.4.1)
 file (GLOB GLES2-native-lib
       GLES2Wrapper.cpp
       GLES2Utils.cpp
-      Triangle.cpp)
+      Triangle.cpp
+      Rectangle.cpp)
 
 # SOIL library
 file (GLOB stb-image-lib

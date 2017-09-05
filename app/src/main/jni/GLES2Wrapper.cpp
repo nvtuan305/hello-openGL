@@ -1,7 +1,8 @@
 #include <jni.h>
 #include <GLES2/gl2.h>
 #include <android/log.h>
-#include "GLES2Utils.h"
+#include "BaseModel.h"
+#include "ShapeGlobal.h"
 
 #define LOG_TAG "GLES2JNIWRAPPER_CPP"
 #define LOGE(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)

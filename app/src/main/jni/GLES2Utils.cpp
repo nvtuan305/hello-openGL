@@ -86,10 +86,9 @@ GLuint loadTexture(const char *imagePath) {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
         int width, height, nrchanel;
-        unsigned char *image = stbi_load(imagePath, &width, &height, &nrchanel, 0);
+        unsigned char *image = stbi_load(imagePath, &width, &height, &nrchanel, STBI_rgb_alpha);
         if (image) {
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE,
-                         image);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
             LOGD("stbi_load image SUCCESSFUL.....");
         } else {
             LOGE("stbi_load image FAILED.....");

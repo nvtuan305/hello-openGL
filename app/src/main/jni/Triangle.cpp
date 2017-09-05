@@ -15,9 +15,11 @@ public:
 
     virtual void init() override;
 
+    void setUseTexture(bool isUseSolidBackground) override;
+
     void resize(int width, int height) override;
 
-    virtual void draw() override;
+    void draw() override;
 };
 
 BasicModel *createTriangle() {
@@ -39,7 +41,8 @@ Triangle::Triangle() : BasicModel() {
     };
     mVertexDataSize = 9;
     mTexCoordsDataSize = 6;
-    LOGD("%d %d %d", mPositionHandle, mTexDataHandle, mProgram);
+    mCountPerVertex = 3;
+    mCountPerTexCoords = 2;
 }
 
 Triangle::~Triangle() {
@@ -56,10 +59,22 @@ void Triangle::init() {
     );
 
     GLubyte solidColor[] = {0, 206, 203, 255};
-    //mTexDataHandle = loadTextureColor(solidColor);
-    mTexDataHandle = loadTexture("/sdcard/Giddylizer/texure.jpg");
+    mTexDataHandle = loadTextureColor(solidColor);
 
     LOGD("Init triangle: SUCCESSFUL...................");
+}
+
+void Triangle::setUseTexture(bool isUseSolidBackground) {
+    // Delete the previous texture
+    glDeleteTextures(1, &mTexDataHandle);
+    checkGlError("glDeleteTextures");
+
+    if (!isUseSolidBackground) {
+        mTexDataHandle = loadTexture("/sdcard/Giddylizer/texure.jpg");
+    } else {
+        GLubyte solidColor[] = {0, 206, 203, 255};
+        mTexDataHandle = loadTextureColor(solidColor);
+    }
 }
 
 void Triangle::resize(int width, int height) {
@@ -70,32 +85,7 @@ void Triangle::resize(int width, int height) {
 }
 
 void Triangle::draw() {
-    glUseProgram(mProgram);
-    checkGlError("glUseProgram");
-
-    // Pass vertex data
-    glBindBuffer(GL_ARRAY_BUFFER, mVB[VB_POSITION]);
-    glEnableVertexAttribArray(mPositionHandle);
-    glVertexAttribPointer(mPositionHandle, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), 0);
-    checkGlError("glVertexAttribPointer - pass vertex data");
-
-    // Pass texture coordinate data
-    glBindBuffer(GL_ARRAY_BUFFER, mVB[VB_TEX_COORDS]);
-    glEnableVertexAttribArray(mTexCoordsHandle);
-    glVertexAttribPointer(mTexCoordsHandle, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), 0);
-    checkGlError("glVertexAttribPointer - pass texture coordinates data");
-
-    // Pass texture data
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, mTexDataHandle);
-    glUniform1i(mTexSampler2DHandle, 0);
-    checkGlError("glUniform1i - pass texture data");
-
-    // Pass MVP matrix data
-    calculateMvpMatrix(0.0f, glm::vec3(0.0f, 0.0f, 0.0f));
-    glUniformMatrix4fv(mMvpMatrixHandle, 1, GL_FALSE, glm::value_ptr(mMvpMatrix));
-    checkGlError("glUniformMatrix4fv - pass MVP matrix data");
-
+    BasicModel::passDataToOpenGl();
     glDrawArrays(GL_TRIANGLES, 0, 3);
 
     checkGlError("glDrawArrays");

@@ -76,34 +76,16 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
     @Override
     public void onSurfaceCreated(GL10 gl10, EGLConfig eglConfig) {
         jniOnSurfaceCreated();
-        /*if (mIsUseJNI) {
-            jniOnSurfaceCreated();
-            return;
-        }
-
-        initSurfaceInJava();*/
     }
 
     @Override
     public void onSurfaceChanged(GL10 gl10, int width, int height) {
         jniOnSurfaceChanged(width, height);
-        /*if (mIsUseJNI) {
-            jniOnSurfaceChanged(width, height);
-            return;
-        }
-
-        doSurfaceChangedInJava(width, height);*/
     }
 
     @Override
     public void onDrawFrame(GL10 gl10) {
-        jniDrawFrame();
-        /*if (mIsUseJNI) {
-            jniDrawFrame();
-            return;
-        }
-
-        drawFrameInJava();*/
+        jniDrawFrame(mCurrentModel);
     }
 
     /*
@@ -239,7 +221,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         drawLogo(0, 0.0f, -0.902f, 0.0f);
 
         // Draw the right logo using translation and rotation transform
-        drawLogo(-90f, 0.902f, 0f, 0.0f);
+        drawLogo(-90.0f, 0.902f, 0.0f, 0.0f);
 
         // Draw the top logo by updating vertices and texture coordinates
         rectVerticesData = new float[]{
@@ -267,7 +249,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
                 1f, 1f,
                 1f, 0.8312f};
         mMagicRectangle.setVerticesAndTexCoords(rectVerticesData, textureCoordinateData);
-        drawLogo(0, 0, 0, 0);
+        drawLogo(0.0f, 0.0f, 0.0f, 0.0f);
     }
 
     private void drawLogo(float angle, float xDelta, float yDelta, float zDelta) {
@@ -305,5 +287,5 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
 
     private native void jniOnSurfaceChanged(int width, int height);
 
-    private native void jniDrawFrame();
+    private native void jniDrawFrame(int model);
 }

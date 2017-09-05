@@ -66,7 +66,45 @@ GLuint loadShader(GLenum shaderType, const char *src) {
     return shaderHandle;
 }
 
+/**
+ * Load a image texture
+ *
+ * @param imagePath image file path
+ * @return texture handle
+ */
+GLuint loadTexture(const char *imagePath) {
+    GLuint textureHandle = 0;
+    glGenTextures(1, &textureHandle);
+    checkGlError("glGenTextures - Gen a new texture");
 
+    if (textureHandle != 0) {
+        glBindTexture(GL_TEXTURE_2D, textureHandle);
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+        int width, height, nrchanel;
+        unsigned char *image = stbi_load(imagePath, &width, &height, &nrchanel, 0);
+        if (image) {
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE,
+                         image);
+            LOGD("stbi_load image SUCCESSFUL.....");
+        } else {
+            LOGE("stbi_load image FAILED.....");
+        }
+
+        checkGlError("glTexImage2D - Gen a new texture");
+        stbi_image_free(image);
+    }
+
+    if (textureHandle == 0) {
+        LOGE("Load texture error");
+    }
+
+    return textureHandle;
+}
 
 /**
  * Load a solid texture

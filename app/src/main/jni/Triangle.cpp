@@ -95,7 +95,8 @@ void Triangle::init() {
     );
 
     GLubyte solidColor[] = {0, 206, 203, 255};
-    mTexDataHandle = loadTextureColor(solidColor);
+    //mTexDataHandle = loadTextureColor(solidColor);
+    mTexDataHandle = loadTexture("/sdcard/Giddylizer/texure.jpg");
 
     LOGD("Init triangle: SUCCESSFUL...................");
 }
